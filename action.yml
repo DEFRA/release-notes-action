@@ -1,0 +1,42 @@
+name: 'Generate Release Notes'
+description: 'Generate release notes from a template and git commit history using Nunjucks'
+author: 'DEFRA'
+branding:
+  icon: 'file-text'
+  color: 'blue'
+inputs:
+  template-file:
+    description: 'Path to the Nunjucks template file'
+    required: true
+  output-file:
+    description: 'Path to output the generated release notes'
+    required: true
+  release-version:
+    description: 'Release version number'
+    required: true
+  template-data:
+    description: 'Additional JSON object containing data to be passed to the template'
+    required: false
+    default: '{}'
+  base-branch:
+    description: 'Base branch to compare against (e.g., master or main)'
+    required: false
+    default: 'master'
+  release-branch:
+    description: 'Release branch containing the changes'
+    required: true
+  ticket-pattern:
+    description: 'Regex pattern to extract ticket IDs from commit messages. Use a wider pattern like `[A-Z]+-[0-9]+.*` to include the commit message text.'
+    required: false
+    default: '[A-Z]+-[0-9]+'
+  git-user-name:
+    description: 'Git user name for the commit'
+    required: false
+    default: 'GitHub Action'
+  git-user-email:
+    description: 'Git user email for the commit'
+    required: false
+    default: 'action@github.com'
+runs:
+  using: 'node20'
+  main: 'index.js'

@@ -1,0 +1,23 @@
+{
+  "name": "release-notes-action",
+  "version": "1.0.0",
+  "description": "GitHub Action to generate release notes using Nunjucks templates",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "github",
+    "actions",
+    "release",
+    "notes",
+    "nunjucks"
+  ],
+  "author": "DEFRA",
+  "license": "MIT",
+  "dependencies": {
+    "@actions/core": "^1.10.0",
+    "@actions/exec": "^1.1.1",
+    "nunjucks": "^3.2.4"
+  }
+}

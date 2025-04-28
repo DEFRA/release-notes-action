@@ -1,0 +1,54 @@
+name: Generate Release Notes
+
+on:
+  workflow_dispatch:
+    inputs:
+      release-version:
+        description: 'Release version (e.g., 8.16.0)'
+        required: true
+      proposed_release_date:
+        description: 'Release date (e.g., 2025-05-01)'
+        required: true
+      jira_release_id:
+        description: 'Jira Release ID'
+        required: true
+      db-changes:
+        description: 'Database changes included'
+        type: 'boolean'
+        default: false
+
+jobs:
+  generate-notes:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        
+      - name: Extract Jira tickets
+        id: extract-tickets
+        run: |
+          # Extract Jira tickets from commit messages since last tag
+          TICKETS=$(git log $(git describe --tags --abbrev=0)..HEAD --pretty=format:"%s" | grep -o "[A-Z]\+-[0-9]\+" | sort -u)
+          echo "tickets<<EOF" >> $GITHUB_OUTPUT
+          echo "$TICKETS" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+          
+      - name: Generate Release Notes
+        uses: defra/release-notes-action@v1
+        with:
+          template-file: './release-docs/template.njk'
+          commit-list: |
+            ${{ steps.extract-tickets.outputs.tickets }}
+          output-file: './release-docs/CFF-${{ github.event.inputs.release-version }}.md'
+          release-version: ${{ github.event.inputs.release-version }}
+          proposed_release_date: ${{ github.event.inputs.proposed_release_date }}
+          jira_release_id: ${{ github.event.inputs.jira_release_id }}
+          db-changes: ${{ github.event.inputs.db-changes }}
+          
+      - name: Commit Release Notes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add ./release-docs/CFF-${{ github.event.inputs.release-version }}.md
+          git commit -m "Add release notes for ${{ github.event.inputs.release-version }}"
+          git push
